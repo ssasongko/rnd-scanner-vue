@@ -1,7 +1,14 @@
 import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
+import App from '@/App.vue'
+import router from '@/router'
 
-createApp(App).mount('#app')
+const vueInit = createApp(App)
+
 // Global styles
 import './global-styles'
+
+// Connect Vue Router
+vueInit.use(router)
+
+// Up we go, Launch the app
+vueInit.mount('#app')
