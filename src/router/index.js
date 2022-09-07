@@ -9,7 +9,7 @@ const routesList = Object.entries(modules).map(([path, m]) => {
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes: routesList
+  routes: routesList.flatMap(arr => arr)
 });
 
 // apply middleware
