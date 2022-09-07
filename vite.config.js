@@ -1,12 +1,14 @@
 import path from 'path'
-import { defineConfig, splitVendorChunkPlugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { defineConfig, splitVendorChunkPlugin } from 'vite'
+import eslintPlugin from 'vite-plugin-eslint';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
-    splitVendorChunkPlugin()
+    splitVendorChunkPlugin(),
+    eslintPlugin()
   ],
   resolve: {
     alias: {
@@ -14,4 +16,13 @@ export default defineConfig({
     },
     extensions: ['.js', '.jsx', '.json', '.vue']
   },
+  server: {
+    host: "pegadaian.mydigilearn.test",
+    port: 8080,
+    https: false,
+  },
+  build: {
+    sourcemap: false,
+    minify: false
+  }
 })

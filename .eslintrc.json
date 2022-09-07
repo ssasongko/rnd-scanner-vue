@@ -1,0 +1,21 @@
+{
+  "root": true,
+  "env": {
+    "node": true,
+    "es2020": true,
+    "browser": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:vue/vue3-recommended"
+  ],
+  "rules": {
+    "no-tabs": 0,
+    "vue/multi-word-component-names": "off",
+    "no-mixed-spaces-and-tabs": 0,
+    "indent": "off",
+    "no-unused-vars": "off",
+    "curly": "off",
+    "semi": "off"
+  }
+}
