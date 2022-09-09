@@ -1,7 +1,12 @@
+import LandingLayout from "@/layouts/landing";
+
 export default [
   {
     path: '/',
-    name: 'dashboard',
-    component: () => import('@/views/home/index.vue')
+    name: 'landing',
+    component: () => import('@/views/landing/index.vue'),
+    meta: {
+      layout: LandingLayout
+    }
   }
 ]
