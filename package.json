@@ -1,8 +1,7 @@
 {
   "name": "digilearn-core",
   "private": true,
-  "version": "0.0.1",
-  "type": "module",
+  "version": "0.0.3",
   "scripts": {
     "dev": "vite --open",
     "build": "vite build",
