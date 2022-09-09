@@ -16,11 +16,6 @@ export default defineConfig({
     },
     extensions: ['.js', '.jsx', '.json', '.vue']
   },
-  server: {
-    host: "pegadaian.mydigilearn.test",
-    port: 8080,
-    https: false,
-  },
   build: {
     sourcemap: false,
     minify: false
