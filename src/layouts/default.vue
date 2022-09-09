@@ -1,6 +1,6 @@
 <template>
   <main>
-    percobaan
+    <router-view></router-view>
   </main>
 </template>
 

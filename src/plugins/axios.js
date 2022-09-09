@@ -11,4 +11,37 @@ const axiosIns = axios.create({
 
 vueInit.config.globalProperties.$http = axiosIns
 
+// request interceptor
+vueInit.config.globalProperties.$http.interceptors.request.use(
+  config => {
+    // config.headers = {
+    //   ...config.headers,
+    //   Authorization: `Bearer ${accessToken}`
+    // }
+
+    return config
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
+// response interceptor
+vueInit.config.globalProperties.$http.interceptors.response.use(
+  response => {
+    return Promise.resolve(response)
+  },
+  error => {
+    switch (error.response.status) {
+      case 401:
+        return Promise.reject(error);
+      break;
+
+      default:
+        return Promise.reject(error);
+      break;
+    }
+  }
+);
+
 export default axiosIns
