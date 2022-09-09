@@ -5,14 +5,15 @@ const axiosIns = axios.create({
   // You can add your headers here
   // ================================
   baseURL: import.meta.env.VITE_API_URL,
-  // timeout: 1000,
-  // headers: {'X-Custom-Header': 'foobar'}
+  headers: {
+    "Content-type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+  },
+  // timeout: 1000
 })
 
-vueInit.config.globalProperties.$http = axiosIns
-
 // request interceptor
-vueInit.config.globalProperties.$http.interceptors.request.use(
+axiosIns.interceptors.request.use(
   config => {
     // config.headers = {
     //   ...config.headers,
@@ -22,26 +23,21 @@ vueInit.config.globalProperties.$http.interceptors.request.use(
     return config
   },
   error => {
-    return Promise.reject(error);
+    return Promise.reject(error)
   }
 );
 
 // response interceptor
-vueInit.config.globalProperties.$http.interceptors.response.use(
+axiosIns.interceptors.response.use(
   response => {
     return Promise.resolve(response)
   },
   error => {
-    switch (error.response.status) {
-      case 401:
-        return Promise.reject(error);
-      break;
-
-      default:
-        return Promise.reject(error);
-      break;
-    }
+    return Promise.reject(error)
   }
 );
+
+// set as global variable $http
+vueInit.config.globalProperties.$http = axiosIns
 
 export default axiosIns
