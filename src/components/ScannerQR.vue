@@ -2,7 +2,7 @@
   <div
     ref="wrapper"
     class="border border-primary rounded-lg"
-    :class="{ fullscreen: fullscreen }"
+    :class="{ fullscreen: true }"
     @fullscreenchange="onFullscreenChange"
   >
     <qrcode-stream @error="logErrors">
