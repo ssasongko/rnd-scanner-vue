@@ -1,21 +1,22 @@
 <template>
-  <div
-    ref="wrapper"
-    class="border border-primary rounded-lg"
-    :class="{ fullscreen: true }"
-    @fullscreenchange="onFullscreenChange"
-  >
-    <qrcode-stream @error="logErrors">
-      <button
-        class="fullscreen-button"
-        @click="fullscreen = !fullscreen"
-      >
-        <img
-          :src="fullscreenIcon"
-          alt="toggle fullscreen"
+  <div>
+    <p>
+      Track function:
+      <select v-model="selected">
+        <option
+          v-for="option in options"
+          :key="option.text"
+          :value="option"
         >
-      </button>
-    </qrcode-stream>
+          {{ option.text }}
+        </option>
+      </select>
+    </p>
+
+    <qrcode-stream
+      :track="selected.value"
+      @error="logErrors"
+    />
   </div>
 </template>
 
@@ -26,96 +27,67 @@ export default {
   components: { QrcodeStream },
 
   data() {
-    return {
-      fullscreen: false
-    }
-  },
+    const options = [
+      { text: 'nothing (default)', value: undefined },
+      { text: 'outline', value: this.paintOutline },
+      { text: 'centered text', value: this.paintCenterText },
+      { text: 'bounding box', value: this.paintBoundingBox }
+    ]
 
-  computed: {
-    fullscreenIcon() {
-      if (this.fullscreen) {
-        return '/fullscreen-exit.svg'
-      } else {
-        return '/fullscreen.svg'
-      }
-    }
-  },
+    const selected = options[1]
 
-  watch: {
-    fullscreen(enterFullscreen) {
-      if (enterFullscreen) {
-        this.requestFullscreen()
-      } else {
-        this.exitFullscreen()
-      }
-    }
+    return { selected, options }
   },
-
   methods: {
-    onFullscreenChange(event) {
-      // This becomes important when the user doesn't use the button to exit
-      // fullscreen but hits ESC on desktop, pushes a physical back button on
-      // mobile etc.
+    paintOutline(detectedCodes, ctx) {
+      for (const detectedCode of detectedCodes) {
+        const [firstPoint, ...otherPoints] = detectedCode.cornerPoints
 
-      this.fullscreen = document.fullscreenElement !== null
-    },
+        ctx.strokeStyle = 'red'
 
-    requestFullscreen() {
-      const elem = this.$refs.wrapper
-
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen()
-      } else if (elem.mozRequestFullScreen) {
-        /* Firefox */
-        elem.mozRequestFullScreen()
-      } else if (elem.webkitRequestFullscreen) {
-        /* Chrome, Safari and Opera */
-        elem.webkitRequestFullscreen()
-      } else if (elem.msRequestFullscreen) {
-        /* IE/Edge */
-        elem.msRequestFullscreen()
+        ctx.beginPath()
+        ctx.moveTo(firstPoint.x, firstPoint.y)
+        for (const { x, y } of otherPoints) {
+          ctx.lineTo(x, y)
+        }
+        ctx.lineTo(firstPoint.x, firstPoint.y)
+        ctx.closePath()
+        ctx.stroke()
       }
     },
+    paintBoundingBox(detectedCodes, ctx) {
+      for (const detectedCode of detectedCodes) {
+        const {
+          boundingBox: { x, y, width, height }
+        } = detectedCode
 
-    exitFullscreen() {
-      if (document.exitFullscreen) {
-        document.exitFullscreen()
-      } else if (document.mozCancelFullScreen) {
-        /* Firefox */
-        document.mozCancelFullScreen()
-      } else if (document.webkitExitFullscreen) {
-        /* Chrome, Safari and Opera */
-        document.webkitExitFullscreen()
-      } else if (document.msExitFullscreen) {
-        /* IE/Edge */
-        document.msExitFullscreen()
+        ctx.lineWidth = 2
+        ctx.strokeStyle = '#007bff'
+        ctx.strokeRect(x, y, width, height)
       }
     },
+    paintCenterText(detectedCodes, ctx) {
+      for (const detectedCode of detectedCodes) {
+        const { boundingBox, rawValue } = detectedCode
 
-    logErrors: prompt => console.error(prompt),
+        const centerX = boundingBox.x + boundingBox.width / 2
+        const centerY = boundingBox.y + boundingBox.height / 2
+
+        const fontSize = Math.max(12, (50 * boundingBox.width) / ctx.canvas.width)
+        console.log(boundingBox.width, ctx.canvas.width)
+
+        ctx.font = `bold ${fontSize}px sans-serif`
+        ctx.textAlign = 'center'
+
+        ctx.lineWidth = 3
+        ctx.strokeStyle = '#35495e'
+        ctx.strokeText(detectedCode.rawValue, centerX, centerY)
+
+        ctx.fillStyle = '#5cb984'
+        ctx.fillText(rawValue, centerX, centerY)
+      }
+    },
+    logErrors: console.error
   }
 }
 </script>
-
-<style scoped>
-.fullscreen {
-  position: fixed;
-  z-index: 1000;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
-}
-
-.fullscreen-button {
-  background-color: white;
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  margin: 1rem;
-}
-
-.fullscreen-button img {
-  width: 2rem;
-}
-</style>
