@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.3",
   "scripts": {
-    "dev": "vite --open",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src"
@@ -13,6 +13,7 @@
     "axios": "^0.27.2",
     "pinia": "^2.0.22",
     "vue": "^3.2.37",
+    "vue-qrcode-reader": "^5.4.1",
     "vue-router": "^4.1.5"
   },
   "devDependencies": {

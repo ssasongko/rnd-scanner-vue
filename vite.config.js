@@ -10,6 +10,9 @@ export default defineConfig({
     splitVendorChunkPlugin(),
     eslintPlugin()
   ],
+  server:{
+    host: true,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src")
