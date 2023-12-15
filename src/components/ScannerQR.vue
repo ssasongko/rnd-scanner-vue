@@ -1,22 +1,23 @@
 <template>
-  <div>
-    <p>
-      Track function:
-      <select v-model="selected">
-        <option
-          v-for="option in options"
-          :key="option.text"
-          :value="option"
-        >
-          {{ option.text }}
-        </option>
-      </select>
-    </p>
-
+  <div
+    ref="wrapper"
+    :class="{ fullscreen: fullscreen }"
+    @fullscreenchange="onFullscreenChange"
+  >
     <qrcode-stream
-      :track="selected.value"
+      :track="paintOutline"
       @error="logErrors"
-    />
+    >
+      <button
+        class="fullscreen-button"
+        @click="fullscreen = !fullscreen"
+      >
+        <img
+          :src="fullscreenIcon"
+          alt="toggle fullscreen"
+        >
+      </button>
+    </qrcode-stream>
   </div>
 </template>
 
@@ -25,20 +26,66 @@ import { QrcodeStream } from 'vue-qrcode-reader'
 
 export default {
   components: { QrcodeStream },
-
+  emits: ['close'],
   data() {
-    const options = [
-      { text: 'nothing (default)', value: undefined },
-      { text: 'outline', value: this.paintOutline },
-      { text: 'centered text', value: this.paintCenterText },
-      { text: 'bounding box', value: this.paintBoundingBox }
-    ]
-
-    const selected = options[1]
-
-    return { selected, options }
+    return {
+      fullscreen: true
+    }
+  },
+  computed: {
+    fullscreenIcon() {
+      if (this.fullscreen) {
+        return '/fullscreen-exit.svg'
+      } else {
+        return '/fullscreen.svg'
+      }
+    }
+  },
+  watch: {
+    fullscreen(enterFullscreen) {
+      if (enterFullscreen) {
+        this.requestFullscreen()
+      } else {
+        this.exitFullscreen()
+        this.$emit('close')
+      }
+    }
   },
   methods: {
+    onFullscreenChange() {
+      this.fullscreen = document.fullscreenElement !== null
+    },
+    requestFullscreen() {
+      const elem = this.$refs.wrapper
+
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen()
+      } else if (elem.mozRequestFullScreen) {
+        /* Firefox */
+        elem.mozRequestFullScreen()
+      } else if (elem.webkitRequestFullscreen) {
+        /* Chrome, Safari and Opera */
+        elem.webkitRequestFullscreen()
+      } else if (elem.msRequestFullscreen) {
+        /* IE/Edge */
+        elem.msRequestFullscreen()
+      }
+    },
+    exitFullscreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen()
+      } else if (document.mozCancelFullScreen) {
+        /* Firefox */
+        document.mozCancelFullScreen()
+      } else if (document.webkitExitFullscreen) {
+        /* Chrome, Safari and Opera */
+        document.webkitExitFullscreen()
+      } else if (document.msExitFullscreen) {
+        /* IE/Edge */
+        document.msExitFullscreen()
+      }
+    },
+    logErrors: console.error,
     paintOutline(detectedCodes, ctx) {
       for (const detectedCode of detectedCodes) {
         const [firstPoint, ...otherPoints] = detectedCode.cornerPoints
@@ -55,39 +102,29 @@ export default {
         ctx.stroke()
       }
     },
-    paintBoundingBox(detectedCodes, ctx) {
-      for (const detectedCode of detectedCodes) {
-        const {
-          boundingBox: { x, y, width, height }
-        } = detectedCode
-
-        ctx.lineWidth = 2
-        ctx.strokeStyle = '#007bff'
-        ctx.strokeRect(x, y, width, height)
-      }
-    },
-    paintCenterText(detectedCodes, ctx) {
-      for (const detectedCode of detectedCodes) {
-        const { boundingBox, rawValue } = detectedCode
-
-        const centerX = boundingBox.x + boundingBox.width / 2
-        const centerY = boundingBox.y + boundingBox.height / 2
-
-        const fontSize = Math.max(12, (50 * boundingBox.width) / ctx.canvas.width)
-        console.log(boundingBox.width, ctx.canvas.width)
-
-        ctx.font = `bold ${fontSize}px sans-serif`
-        ctx.textAlign = 'center'
-
-        ctx.lineWidth = 3
-        ctx.strokeStyle = '#35495e'
-        ctx.strokeText(detectedCode.rawValue, centerX, centerY)
-
-        ctx.fillStyle = '#5cb984'
-        ctx.fillText(rawValue, centerX, centerY)
-      }
-    },
-    logErrors: console.error
   }
 }
 </script>
+
+<style scoped>
+.fullscreen {
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+
+.fullscreen-button {
+  background-color: white;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 1rem;
+}
+
+.fullscreen-button img {
+  width: 2rem;
+}
+</style>

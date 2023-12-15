@@ -12,6 +12,7 @@
     </button>
     <ScannerQR 
       v-if="showScanner"
+      @close="showScanner = false"
     />
   </div>
 </template>
