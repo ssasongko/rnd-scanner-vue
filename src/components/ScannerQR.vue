@@ -2,11 +2,18 @@
   <div
     ref="wrapper"
     :class="{ fullscreen: fullscreen }"
-    @fullscreenchange="onFullscreenChange"
+    @fullscreenchange="fullscreen = document.fullscreenElement !== null"
   >
+    <div 
+      v-if="loading"
+      class="bg-white h-full text-black flex justify-center items-center"
+    >
+      <p>Loading...</p>
+    </div>
     <qrcode-stream
       :track="paintOutline"
       @error="logErrors"
+      @camera-on="loading = false" 
     >
       <button
         class="fullscreen-button"
@@ -29,7 +36,8 @@ export default {
   emits: ['close'],
   data() {
     return {
-      fullscreen: true
+      fullscreen: true,
+      loading: true
     }
   },
   computed: {
@@ -52,9 +60,6 @@ export default {
     }
   },
   methods: {
-    onFullscreenChange() {
-      this.fullscreen = document.fullscreenElement !== null
-    },
     requestFullscreen() {
       const elem = this.$refs.wrapper
 
