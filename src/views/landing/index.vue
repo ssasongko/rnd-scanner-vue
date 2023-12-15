@@ -1,6 +1,7 @@
 <template>
   <div>
     <p>Is Mobile ? {{ isOpenFromMobile }}</p>
+    <p>Opened ? {{ showScanner }}</p>
     <hr>
 
     <button
@@ -13,6 +14,8 @@
     <ScannerQR 
       v-if="showScanner"
       @close="showScanner = false"
+      @close-failed="showScanner = false"
+      @close-success="showScanner = false"
     />
   </div>
 </template>
